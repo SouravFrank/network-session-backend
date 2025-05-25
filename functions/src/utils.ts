@@ -1,4 +1,4 @@
-import { UsageData } from './typs';
+import { UsageData } from './types';
 import { JSDOM } from 'jsdom';
 
 export function parseHtmlContent(html: string): UsageData[] {
@@ -7,7 +7,7 @@ export function parseHtmlContent(html: string): UsageData[] {
     const doc = dom.window.document;
     const rows = doc.querySelectorAll('table tr');
     const usageData: UsageData[] = [];
-    rows.forEach((row, index) => {
+    rows.forEach((row, index:number) => {
       if (index === 0) return; // Skip header row
       const cells = row.querySelectorAll('td');
       if (cells.length >= 5) {

@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const { JSDOM } = require('jsdom');
 const { parseHtmlContent, mergeData } = require('./utils');
-const { UsageData } = require('./typs');
+const { UsageData } = require('./types');
 
 const app = express();
 const port = 8080;
@@ -101,8 +101,4 @@ app.post('/api/usageData', async (req, res) => {
     console.error('Error writing data:', error);
     res.status(500).json({ error: 'Error writing data' });
   }
-});
-
-app.listen(port, () => {
-  console.log(`Backend server running at http://localhost:${port}`);
 });
