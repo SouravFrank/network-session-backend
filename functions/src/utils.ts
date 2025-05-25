@@ -1,8 +1,10 @@
 import { UsageData } from './types';
 import { JSDOM } from 'jsdom';
+import { logger } from 'firebase-functions/v2';
 
 export function parseHtmlContent(html: string): UsageData[] {
   try {
+    logger.info('Starting HTML content parsing');
     const dom = new JSDOM(html);
     const doc = dom.window.document;
     const rows = doc.querySelectorAll('table tr');
@@ -20,13 +22,16 @@ export function parseHtmlContent(html: string): UsageData[] {
         }
       }
     });
+    logger.info(`Successfully parsed ${usageData.length} usage data entries`);
     return usageData;
   } catch (error) {
+    logger.error('Failed to parse HTML content', error);
     throw new Error('Failed to parse HTML content');
   }
 }
 
 export function mergeData(existingData: UsageData[], newData: UsageData[]): UsageData[] {
+  logger.info(`Merging data sets: existing=${existingData.length}, new=${newData.length}`);
   const dataMap = new Map(existingData.map(item => [item.loginTime, item]));
   newData.forEach(item => {
     dataMap.set(item.loginTime, item);
