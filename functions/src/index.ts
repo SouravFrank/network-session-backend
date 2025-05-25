@@ -7,46 +7,38 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
-import { parseHtmlContent, mergeData } from './utils';
-
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
-
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-const functions = require('firebase-functions');
-const express = require('express');
-const cors = require('cors')({ origin: true }); // For handling CORS
+import * as functions from 'firebase-functions';
+import * as express from 'express';
+import { Request, Response } from 'express';
+import * as cors from 'cors';
+import { getNetworkUsageData, saveNetworkUsageData } from './services';
 
 const app = express();
-
-// Automatically allow cross-origin requests
-app.use(cors);
-
-// In-memory store for demonstration (replace with DB in production)
-let usageDataStore: any[] = [];
+app.use(cors({ origin: true }));
 
 // GET network usage data
-app.get('/network-usage', (req, res) => {
-  res.status(200).send({ data: usageDataStore });
+app.get('/network-usage', async (req: Request, res: Response) => {
+  try {
+    const data = await getNetworkUsageData();
+    res.status(200).send({ data });
+  } catch (error) {
+    console.error('Error fetching usage data:', error);
+    res.status(500).send({ error: 'Failed to fetch usage data' });
+  }
 });
 
 // POST network usage data
-app.post('/network-usage', express.json(), (req, res) => {
+app.post('/network-usage', express.json(), async (req: Request, res: Response) => {
   const { html } = req.body;
   if (!html || typeof html !== 'string') {
     return res.status(400).send({ error: 'Missing or invalid html in request body' });
   }
   try {
-    const parsedData = parseHtmlContent(html);
-    usageDataStore = mergeData(usageDataStore, parsedData);
-    console.log('Parsed and deduped usage data:', usageDataStore);
-    res.status(201).send({ message: 'Usage data processed successfully. '+ parsedData.length + " records received." });
+    const mergedData = await saveNetworkUsageData(html);
+    console.info('Parsed and deduped usage data:', mergedData);
+    res.status(201).send({ message: 'Usage data processed successfully', data: mergedData });
   } catch (error) {
+    console.error('Error processing usage data:', error);
     res.status(500).send({ error: 'Failed to process usage data' });
   }
 });
