@@ -3,6 +3,8 @@ const fs = require('fs').promises;
 const path = require('path');
 const cors = require('cors');
 const { JSDOM } = require('jsdom');
+const { parseHtmlContent, mergeData } = require('./utils');
+const { UsageData } = require('./typs');
 
 const app = express();
 const port = 8080;
@@ -76,55 +78,6 @@ app.get('/api/fetchWishnetData', async (req, res) => {
     });
   }
 });
-
-function parseHtmlContent(html) {
-  try {
-    const dom = new JSDOM(html);
-    const doc = dom.window.document;
-    
-    const rows = doc.querySelectorAll('table tr');
-    const usageData = [];
-
-    rows.forEach((row, index) => {
-      if (index === 0) return; // Skip header row
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 5) {
-        const loginTime = cells[1].textContent.trim();
-        const sessionTime = cells[2].textContent.trim();
-        const download = parseFloat(cells[3].textContent.trim());
-        const upload = parseFloat(cells[4].textContent.trim());
-        
-        if (!isNaN(download) && !isNaN(upload)) {
-          usageData.push({ 
-            loginTime, 
-            sessionTime, 
-            download, 
-            upload 
-          });
-        }
-      }
-    });
-
-    return usageData;
-  } catch (error) {
-    console.error('Error parsing HTML:', error);
-    throw new Error('Failed to parse HTML content');
-  }
-}
-
-function mergeData(existingData, newData) {
-  // Create a map of existing data using loginTime as key
-  const dataMap = new Map(existingData.map(item => [item.loginTime, item]));
-
-  // Add new data, overwriting if same loginTime exists
-  newData.forEach(item => {
-    dataMap.set(item.loginTime, item);
-  });
-
-  // Convert map back to array and sort by loginTime (newest first)
-  return Array.from(dataMap.values())
-    .sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime));
-}
 
 app.get('/api/usageData', async (req, res) => {
   try {

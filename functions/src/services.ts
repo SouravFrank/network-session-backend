@@ -6,6 +6,7 @@ import {
 import * as fs from "fs/promises";
 import * as path from "path";
 import { JSDOM } from "jsdom";
+import * as admin from "firebase-admin";
 
 const BASE_URL = "http://192.168.182.201:9085/Kolkata/WISHN";
 const HEADERS = {
@@ -17,7 +18,11 @@ const HEADERS = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
 };
 
-const dataFilePath = path.join(__dirname, "data", "usageData.json");
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+const db = admin.database();
+const USAGE_DATA_PATH = "/usageData";
 
 export async function fetchWishnetDataService(): Promise<FetchWishnetDataResult | FetchWishnetDataError> {
   try {
@@ -43,16 +48,21 @@ export async function fetchWishnetDataService(): Promise<FetchWishnetDataResult 
       throw new Error("No usage data found in the response");
     }
 
-    let existingData: UsageData[] = [];
-    try {
-      const fileContent = await fs.readFile(dataFilePath, "utf8");
-      existingData = JSON.parse(fileContent);
-    } catch (error) {
-      // No existing data file found, create new one
-    }
+    // Fetch existing data from Realtime Database
+    const snapshot = await db.ref(USAGE_DATA_PATH).once("value");
+    const existingData: UsageData[] = snapshot.val()
+      ? Object.values(snapshot.val())
+      : [];
 
+    // Merge and deduplicate
     const mergedData = mergeData(existingData, usageData);
-    await fs.writeFile(dataFilePath, JSON.stringify(mergedData, null, 2));
+
+    // Write merged data back to Realtime Database
+    const updates: { [key: string]: UsageData } = {};
+    mergedData.forEach((item) => {
+      updates[item.loginTime] = item;
+    });
+    await db.ref(USAGE_DATA_PATH).set(updates);
 
     return {
       success: true,
