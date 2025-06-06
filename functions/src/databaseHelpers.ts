@@ -9,7 +9,7 @@ if (!admin.apps.length) {
   logger.info('Firebase Admin SDK initialized');
 }
 
-export async function getNetworkUsageData() {
+export async function getNetworkUsageDataFromDB() {
   logger.info('Fetching network usage data from database');
   try {
     const snapshot = await admin.database().ref(USAGE_DB_PATH).once('value');
@@ -22,7 +22,7 @@ export async function getNetworkUsageData() {
   }
 }
 
-export async function saveNetworkUsageData(data: any) {
+export async function saveNetworkUsageDataToDB(data: any) {
   logger.info(`Saving ${Array.isArray(data) ? data.length : 0} usage records to database`);
   try {
     await admin.database().ref(USAGE_DB_PATH).set(data);

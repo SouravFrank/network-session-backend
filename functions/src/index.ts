@@ -7,14 +7,15 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
+import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { getNetworkUsageData, saveNetworkUsageData } from './services';
+import { saveNetworkUsageData } from './services';
+import { getNetworkUsageDataFromDB } from "./databaseHelpers";
 
 // GET network usage data
 export const getNetworkUsage = onRequest(async (req, res) => {
   try {
-    const data = await getNetworkUsageData();
+    const data = await getNetworkUsageDataFromDB();
     res.status(200).json({ data });
   } catch (error) {
     logger.error('Error fetching usage data:', error);
@@ -26,7 +27,8 @@ export const getNetworkUsage = onRequest(async (req, res) => {
 export const updateNetworkUsage = onRequest(async (req, res) => {
   const { html } = req.body;
   if (!html || typeof html !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid html in request body' });
+    res.status(400).json({ error: 'Missing or invalid html in request body' });
+    return;
   }
 
   try {
