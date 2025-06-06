@@ -1,7 +1,12 @@
-import { UsageData } from './types';
+import type { UsageData } from './types';
 import { JSDOM } from 'jsdom';
 import { logger } from 'firebase-functions/v2';
 
+/**
+ * Parses HTML content and extracts an array of UsageData.
+ * @param html HTML string to parse.
+ * @returns Array of UsageData.
+ */
 export function parseHtmlContent(html: string): UsageData[] {
   try {
     logger.info('Starting HTML content parsing');
@@ -9,7 +14,7 @@ export function parseHtmlContent(html: string): UsageData[] {
     const doc = dom.window.document;
     const rows = doc.querySelectorAll('table tr');
     const usageData: UsageData[] = [];
-    rows.forEach((row, index:number) => {
+    rows.forEach((row, index: number) => {
       if (index === 0) return; // Skip header row
       const cells = row.querySelectorAll('td');
       if (cells.length >= 5) {
@@ -30,9 +35,15 @@ export function parseHtmlContent(html: string): UsageData[] {
   }
 }
 
+/**
+ * Merges existing and new UsageData arrays, deduping by loginTime and sorting by date descending.
+ * @param existingData Existing UsageData array.
+ * @param newData New UsageData array.
+ * @returns Merged and sorted UsageData array.
+ */
 export function mergeData(existingData: UsageData[], newData: UsageData[]): UsageData[] {
   logger.info(`Merging data sets: existing=${existingData.length}, new=${newData.length}`);
-  const dataMap = new Map(existingData.map(item => [item.loginTime, item]));
+  const dataMap = new Map<string, UsageData>(existingData.map(item => [item.loginTime, item]));
   newData.forEach(item => {
     dataMap.set(item.loginTime, item);
   });

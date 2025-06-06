@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions/v2';
+import type { UsageData } from './types';
 
 const USAGE_DB_PATH = '/networkUsageData';
 
@@ -9,20 +10,29 @@ if (!admin.apps.length) {
   logger.info('Firebase Admin SDK initialized');
 }
 
-export async function getNetworkUsageDataFromDB() {
+/**
+ * Fetches network usage data from the database.
+ * @returns Promise resolving to an array of UsageData.
+ */
+export async function getNetworkUsageDataFromDB(): Promise<UsageData[]> {
   logger.info('Fetching network usage data from database');
   try {
     const snapshot = await admin.database().ref(USAGE_DB_PATH).once('value');
-    const data = snapshot.val() || [];
+    const data = snapshot.val();
     logger.info(`Retrieved ${Array.isArray(data) ? data.length : 0} usage records`);
-    return data;
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     logger.error('Failed to fetch network usage data', error);
     throw error;
   }
 }
 
-export async function saveNetworkUsageDataToDB(data: any) {
+/**
+ * Saves network usage data to the database.
+ * @param data Array of UsageData to save.
+ * @returns Promise resolving to the saved data.
+ */
+export async function saveNetworkUsageDataToDB(data: UsageData[]): Promise<UsageData[]> {
   logger.info(`Saving ${Array.isArray(data) ? data.length : 0} usage records to database`);
   try {
     await admin.database().ref(USAGE_DB_PATH).set(data);

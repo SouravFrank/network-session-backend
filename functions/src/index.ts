@@ -7,13 +7,15 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import { onRequest } from "firebase-functions/v2/https";
+import { onRequest, Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 import * as logger from "firebase-functions/logger";
 import { saveNetworkUsageData } from './services';
 import { getNetworkUsageDataFromDB } from "./databaseHelpers";
+import { ApiResponse, UpdateNetworkUsageRequestBody } from "./types";
 
 // GET network usage data
-export const getNetworkUsage = onRequest(async (req, res) => {
+export const getNetworkUsage = onRequest(async (req: Request, res: Response<ApiResponse>) => {
   try {
     const data = await getNetworkUsageDataFromDB();
     res.status(200).json({ data });
@@ -24,15 +26,16 @@ export const getNetworkUsage = onRequest(async (req, res) => {
 });
 
 // POST network usage data
-export const updateNetworkUsage = onRequest(async (req, res) => {
-  const { html } = req.body;
-  if (!html || typeof html !== 'string') {
+export const updateNetworkUsage = onRequest(async (req: Request, res: Response<ApiResponse>) => {
+  const body = req.body as UpdateNetworkUsageRequestBody;
+
+  if (!body || typeof body.html !== 'string' || !body.html.trim()) {
     res.status(400).json({ error: 'Missing or invalid html in request body' });
     return;
   }
 
   try {
-    const mergedData = await saveNetworkUsageData(html);
+    const mergedData = await saveNetworkUsageData(body.html);
     logger.info('Parsed and deduped usage data:', mergedData);
     res.status(201).json({ message: 'Usage data processed successfully', data: mergedData });
   } catch (error) {
