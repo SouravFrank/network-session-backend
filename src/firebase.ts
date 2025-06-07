@@ -2,15 +2,18 @@
 import {initializeApp} from "firebase/app";
 import {getDatabase, Database} from "firebase/database";
 
+// Use process.env for environment variables
+const {API_KEY, PROJECT_ID, MESSAGING_SENDER_ID, APP_ID} = process.env;
+
 // Your web app's Firebase configuration
 export const firebaseConfig = {
-  apiKey: process.ENV.API_KEY,
-  authDomain: `${process.ENV.PROJECT_ID}.firebaseapp.com`,
-  databaseURL: `https://${process.ENV.PROJECT_ID}-default-rtdb.firebaseio.com`,
-  projectId: "session-insights-ryswj",
-  storageBucket: `${process.ENV.PROJECT_ID}.firebasestorage.app`,
-  messagingSenderId: process.ENV.MESSAGING_SENDER_ID,
-  appId: process.ENV.APP_ID,
+  apiKey: API_KEY,
+  authDomain: `${PROJECT_ID}.firebaseapp.com`,
+  databaseURL: `https://${PROJECT_ID}-default-rtdb.firebaseio.com`,
+  projectId: PROJECT_ID,
+  storageBucket: `${PROJECT_ID}.firebasestorage.app`,
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: APP_ID,
 };
 
 // Initialize Firebase
