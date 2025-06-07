@@ -10,7 +10,7 @@ FUNCTION_NAME="updateNetworkUsage"
 # Fetch HTML and send as JSON to your Firebase function
 curl -s "$SOURCE_URL" | \
   jq -Rs --arg key "html" '{($key): .}' | \
-  curl -X POST "http://localhost:5001/$PROJECT_ID/$REGION/$FUNCTION_NAME" \
+  curl -X POST "http://localhost:8080/api/network-usage" \
     -H "Content-Type: application/json" \
     --data-binary @-
 
