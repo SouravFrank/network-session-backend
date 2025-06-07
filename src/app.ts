@@ -12,6 +12,11 @@ app.use(cors());
 // Middleware
 app.use(bodyParser.json());
 
+// Health check endpoint
+app.get('/health', (_req, res) => {
+  res.status(200).json({status: 'ok', message: 'Service is healthy'});
+});
+
 // Routes
 app.use('/api', networkUsageRoutes);
 
