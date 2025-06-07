@@ -21,7 +21,9 @@ export function mergeData(
   newData.forEach((item) => {
     dataMap.set(item.loginTime, item);
   });
-  return Array.from(dataMap.values()).sort(
+  const merged = Array.from(dataMap.values()).sort(
     (a, b) => new Date(b.loginTime).getTime() - new Date(a.loginTime).getTime(),
   );
+  logger.info(`Merged data set size: ${merged.length}`);
+  return merged;
 }

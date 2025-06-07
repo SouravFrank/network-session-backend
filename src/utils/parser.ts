@@ -8,8 +8,8 @@ import {JSDOM} from "jsdom";
  * @return {UsageData[]} Array of UsageData.
  */
 export function parseHtmlContent(html: string): UsageData[] {
+  logger.info("Parsing HTML content in parser");
   try {
-    logger.info("Starting HTML content parsing");
     const dom = new JSDOM(html);
     const doc = dom.window.document;
     const rows = doc.querySelectorAll("table tr");
@@ -27,7 +27,7 @@ export function parseHtmlContent(html: string): UsageData[] {
         }
       }
     });
-    logger.info(`Successfully parsed ${usageData.length} usage data entries`);
+    logger.info(`Parsed ${usageData.length} usage data entries from HTML`);
     return usageData;
   } catch (error) {
     logger.error("Failed to parse HTML content", error);
