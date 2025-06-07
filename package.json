@@ -8,7 +8,7 @@
     "start": "node lib/app.js",
     "dev": "ts-node src/app.ts",
     "watch": "tsc -w",
-    "predeploy": "npm run build"
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "cors": "^2.8.5",
