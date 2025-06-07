@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "node lib/app.js",
     "dev": "ts-node src/app.ts",
     "watch": "tsc -w",
     "predeploy": "npm run build"

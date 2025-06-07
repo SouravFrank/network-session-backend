@@ -12,3 +12,7 @@ node_modules/
 *.log
 
 .env
+
+*audit.json
+
+lib
