@@ -1,86 +1,146 @@
-# Express Firebase App
+# 🚀 Express Firebase Network Usage App
 
-This project is an Express.js application built with TypeScript that interacts with Firebase Realtime Database to manage network usage data. It provides two main APIs: one for retrieving network usage data and another for updating network usage data.
+A modern, TypeScript-based Express.js application for ingesting and managing network usage data in Firebase Realtime Database. Designed for reliability, observability, and easy integration with local or cloud-based data sources.
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```
-express-firebase-app
+wishnet-session-datastore
 ├── src
-│   ├── app.ts                     # Entry point of the application
+│   ├── app.ts                        # Main Express app entry point
+│   ├── firebase.ts                   # Firebase client initialization
 │   ├── controllers
-│   │   └── networkUsageController.ts # Handles API logic for network usage
+│   │   └── networkUsageController.ts # API logic for network usage endpoints
 │   ├── routes
-│   │   └── networkUsageRoutes.ts   # Defines API routes for network usage
+│   │   └── networkUsageRoutes.ts     # Express routes for network usage APIs
 │   ├── services
-│   │   └── firebaseService.ts       # Interacts with Firebase Realtime Database
+│   │   └── firebaseService.ts        # Firebase DB interaction logic
 │   ├── types
-│   │   ├── apiResponse.ts           # Defines API response structure
-│   │   └── updateNetworkUsageRequestBody.ts # Defines request body structure for updates
+│   │   ├── apiResponse.ts            # API response type definitions
+│   │   ├── updateNetworkUsageRequestBody.ts # Request body type for updates
+│   │   └── usageData.ts              # Usage data type definition
 │   └── utils
-│       └── logger.ts                # Logger utility for the application
-├── package.json                     # NPM dependencies and scripts
-├── tsconfig.json                   # TypeScript configuration
-└── README.md                       # Project documentation
+│       ├── logger.ts                 # Winston logger with daily rotation
+│       ├── mergeData.ts              # Data deduplication & merge logic
+│       └── parser.ts                 # HTML parsing for usage data
+├── fetch_and_post_html.sh            # Script: Pushes Wishnet usage HTML to API
+├── package.json                      # NPM dependencies and scripts
+├── tsconfig.json                     # TypeScript configuration
+├── .env                              # Environment variables (not committed)
+├── .eslintrc.js                      # ESLint configuration
+├── .prettierrc                       # Prettier configuration
+└── README.md                         # Project documentation
 ```
 
-## Installation
+---
 
-1. Clone the repository:
-   ```
+## 🛠️ Installation
+
+1. **Clone the repository:**
+   ```sh
    git clone <repository-url>
+   cd wishnet-session-datastore
    ```
 
-2. Navigate to the project directory:
-   ```
-   cd express-firebase-app
-   ```
-
-3. Install the dependencies:
-   ```
+2. **Install dependencies:**
+   ```sh
    npm install
    ```
 
-## Usage
+3. **Configure environment variables:**
+   - Copy `.env.example` to `.env` and fill in your Firebase credentials:
+     ```
+     API_KEY=your_api_key
+     PROJECT_ID=your_project_id
+     MESSAGING_SENDER_ID=your_messaging_sender_id
+     APP_ID=your_app_id
+     ```
 
-To start the application, run the following command:
+---
 
-```
+## 🚦 Usage
+
+### Start the Application
+
+```sh
+npm run build
 npm start
 ```
 
-The application will be available at `http://localhost:3000`.
+The server will run at [http://localhost:8080](http://localhost:8080) (or your configured `PORT`).
 
-## API Endpoints
+---
 
-### GET /api/network-usage
+## 🌐 API Endpoints
 
-Fetches network usage data from the Firebase Realtime Database.
+### `GET /api/network-usage`
+Fetches all network usage data from Firebase.
 
-**Response:**
-- 200 OK: Returns the network usage data.
-- 500 Internal Server Error: If there is an error fetching the data.
+- **Response:**  
+  - `200 OK` with data array  
+  - `500 Internal Server Error` on failure
 
-### POST /api/network-usage
-
-Updates network usage data in the Firebase Realtime Database.
-
+### `POST /api/network-usage`
+Updates network usage data in Firebase.  
 **Request Body:**
 ```json
 {
-  "html": "string"
+  "html": "<html>...</html>"
 }
 ```
+- **Response:**  
+  - `201 Created` with processed data  
+  - `400 Bad Request` if body is missing/invalid  
+  - `500 Internal Server Error` on failure
 
-**Response:**
-- 201 Created: Returns a success message and the processed data.
-- 400 Bad Request: If the request body is missing or invalid.
-- 500 Internal Server Error: If there is an error processing the data.
+### `GET /health`
+Health check endpoint.
 
-## Contributing
+---
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+## 📝 Data Flow
 
-## License
+- **HTML Usage Data** is fetched (e.g., from a local Wishnet router page).
+- The HTML is parsed and deduplicated.
+- Data is stored in Firebase Realtime Database.
 
-This project is licensed under the MIT License.
+---
+
+## ⚡ Script: Push Wishnet Usage Data
+
+The [`fetch_and_post_html.sh`](fetch_and_post_html.sh) script automates fetching HTML usage data from your local Wishnet router and POSTs it to your backend API for ingestion.
+
+**Usage:**
+```sh
+bash fetch_and_post_html.sh
+```
+- The script fetches the HTML from your local network Wishnet usage API and pushes it to `/api/network-usage`.
+- Make sure to update `SOURCE_URL` and API endpoint in the script as needed.
+
+---
+
+## 📦 NPM Scripts
+
+From [`package.json`](package.json):
+
+- `npm run build` — Compile TypeScript to JavaScript
+- `npm start` — Run the compiled app
+- `npm run dev` — Run app in development mode with ts-node
+- `npm run watch` — Watch and recompile TypeScript on changes
+
+---
+
+## 🧑‍💻 Contributing
+
+Contributions are welcome!  
+Open an issue or submit a pull request for improvements or bug fixes.
+
+---
+
+## 📄 License
+
+MIT License
+
+---
