@@ -40,7 +40,7 @@ wishnet-session-datastore
 
 1. **Clone the repository:**
    ```sh
-   git clone <repository-url>
+   git clone https://github.com/SouravFrank/network-session-backend.git
    cd wishnet-session-datastore
    ```
 
@@ -136,11 +136,5 @@ From [`package.json`](package.json):
 
 Contributions are welcome!  
 Open an issue or submit a pull request for improvements or bug fixes.
-
----
-
-## 📄 License
-
-MIT License
 
 ---
