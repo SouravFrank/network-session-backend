@@ -9,9 +9,21 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 echo -e "${CYAN}Step 1:${NC} Fetching HTML from Wishnet usage page..."
-SOURCE_URL="http://192.168.182.201:9085/Kolkata/WISHN/UsageDetailUI.do6?userNameFromParent=28%3AF8%3AC6%3A5B%3AE2%3AB0&itemIndex=0&Month=4&Group=All"
 
-HTML_CONTENT=$(curl -sf "$SOURCE_URL")
+SOURCE_URL="http://192.168.182.201:9085/Kolkata/WISHN/UsageDetailUI.do6?userNameFromParent=28%3AF8%3AC6%3A5B%3AE2%3AB0&itemIndex=0&Month=1&Group=All"
+JSESSIONID="7EA9D47BC9EC7F4FE64FB1D06D835135"
+
+HTML_CONTENT=$(curl -sf "$SOURCE_URL" \
+  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+  -H 'Accept-Language: en-IN,en-US;q=0.9,en-GB;q=0.8,en;q=0.7' \
+  -H 'Connection: keep-alive' \
+  -b "JSESSIONID=$JSESSIONID" \
+  -H 'DNT: 1' \
+  -H "Referer: $SOURCE_URL" \
+  -H 'Upgrade-Insecure-Requests: 1' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36' \
+  --insecure)
+
 if [ $? -ne 0 ]; then
   echo -e "${RED}Error:${NC} Failed to fetch HTML from $SOURCE_URL."
   exit 1
