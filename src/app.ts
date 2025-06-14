@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 
 // Middleware
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "5mb" }));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
